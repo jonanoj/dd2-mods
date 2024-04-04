@@ -31,6 +31,39 @@ local function sdk_iterator(sdk_enumerator)
     end
 end
 
+local gamepad_name_to_id, gamepad_id_to_name = generate_enum("via.hid.GamePadButton")
+local supported_gamepad_buttons = {}
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RLeft)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RUp)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RRight)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RDown)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LTrigTop)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LTrigBottom)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RTrigTop)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RTrigBottom)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LStickPush)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.RStickPush)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LLeft)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LUp)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LRight)
+table.insert(supported_gamepad_buttons, gamepad_name_to_id.LDown)
+
+local managed_gamepad_buttons = sdk.create_managed_array(sdk.find_type_definition("via.hid.GamePadButton"),
+    #supported_gamepad_buttons):add_ref()
+for i, id in pairs(supported_gamepad_buttons) do
+    managed_gamepad_buttons[i - 1] = id
+end
+
+sdk.hook(sdk.find_type_definition("app.ui060806"):get_method("Initialize"), function(args)
+    local ui_object = sdk.to_managed_object(args[2])
+    ui_object:set_field("BasicButtons", managed_gamepad_buttons)
+    ui_object:set_field("BasicButtonNum", #supported_gamepad_buttons)
+    ui_object:set_field("CrossButtons", managed_gamepad_buttons)
+    ui_object:set_field("CrossButtonNum", #supported_gamepad_buttons)
+end, function(retval)
+    return retval
+end)
+
 local keyboard_name_to_id, keyboard_id_to_name = generate_enum("via.hid.KeyboardKey")
 local character_action_name_to_id, character_action_id_to_name = generate_enum("app.CharacterInput.Action")
 local system_action_name_to_id, system_action_id_to_name = generate_enum("app.SystemInput.Action")
