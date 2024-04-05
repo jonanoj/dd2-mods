@@ -333,6 +333,7 @@ re.on_draw_ui(function()
                 local changed, with_shift = render_keybind(keybind, true)
                 if changed then
                     save_shift_change(keybind, command_hash, with_shift)
+                    KeyBindController:call("reflectSaveData")
                 end
                 imgui.spacing()
                 imgui.spacing()
